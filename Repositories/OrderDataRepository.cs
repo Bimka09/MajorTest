@@ -3,6 +3,7 @@ using MajorTest.Model;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Reflection;
 using System.Text;
@@ -11,13 +12,13 @@ namespace MajorTest.Repositories
 {
     internal class OrderDataRepository : IDisposable
     {
-        private string _connectionString = "User ID=postgres;Password=*;Host=localhost;Port=5432;Database=MajorTest;";
-        public IDbConnection _dbConnection;
+        private IDbConnection _dbConnection;
         private bool disposed = false;
 
         public OrderDataRepository()
         {
-            _dbConnection = new NpgsqlConnection(_connectionString);
+            var connectionString = ConfigurationManager.AppSettings["ConnectionString"];
+            _dbConnection = new NpgsqlConnection(connectionString);
             _dbConnection.Open();
         }
 
@@ -35,7 +36,7 @@ namespace MajorTest.Repositories
         }
         ~OrderDataRepository()
         {
-            Dispose(false);
+            Dispose(true);
         }
         public IEnumerable<OrderData> GetFilteredCreateOrder(FilterData filterData)
         {
@@ -43,7 +44,7 @@ namespace MajorTest.Repositories
             StringBuilder sbQuery = new StringBuilder();
             sbQuery.Append("select * from \"OrderData\"");
             Type myType = typeof(FilterData);
-            foreach (PropertyInfo prop in myType.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static))
+            foreach (PropertyInfo prop in myType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
                 var propName = myType.GetProperty(prop.Name);
                 var propValue = propName?.GetValue(filterData);

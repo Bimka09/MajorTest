@@ -25,16 +25,17 @@ namespace MajorTest.Repositories
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    _dbConnection.Close();
-                }
+                _dbConnection.Close();
                 disposed = true;
             }
         }
         public void Dispose()
         {
             Dispose(true);
+        }
+        ~OrderDataRepository()
+        {
+            Dispose(false);
         }
         public IEnumerable<OrderData> GetFilteredCreateOrder(FilterData filterData)
         {
